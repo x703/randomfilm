@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ретро Генератор Фильмов</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <div class="container">
+        <div class="tv-screen">
+            <div class="noise"></div> <!-- Эффект шума -->
+            <h1>Ретро Генератор Фильмов</h1>
+
+            <button class="generate-button" id="generate-movie">Сгенерировать фильм</button>
+            <div id="movie-details">
+                <p id="movie-idea"></p>
+                <p id="movie-year"></p>
+                <p id="movie-genre"></p>
+            </div>
+            <div id="like-dislike">
+                <button id="like-button"><i class="fas fa-thumbs-up"></i> <span id="like-count">0</span></button>
+                <button id="dislike-button"><i class="fas fa-thumbs-down"></i> <span id="dislike-count">0</span></button>
+            </div>
+            <div id="comments-section">
+                <h2>Комментарии</h2>
+                <ul id="comments-list"></ul>
+                <textarea id="comment-text" placeholder="Напишите комментарий"></textarea>
+                <button id="add-comment-button"><i class="fas fa-comment"></i> Добавить комментарий</button>
+            </div>
+
+            <p id="search-link-container">
+                <a id="search-link" href="#" target="_blank">Найти больше информации</a>
+            </p>
+        </div>
+
+        <div class="login-section">
+            <button id="login-button">Логин</button>
+            <div id="login-form" style="display: none;">
+                <input type="text" id="username" placeholder="Имя пользователя">
+                <input type="password" id="password" placeholder="Пароль">
+                <button id="submit-login">Войти</button>
+                <button id="register-button">Зарегистрироваться</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="click-sound" src="click.mp3"></audio> <!-- Звук клика -->
+    <audio id="static-sound" src="static.mp3"></audio> <!-- Звук статики -->
+
+    <script src="script.js"></script>
+</body>
+</html>
