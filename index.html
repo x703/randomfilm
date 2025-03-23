@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор Фильмов</title>
+    <title>Ретро Генератор Фильмов</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -44,6 +44,18 @@
                 <input type="password" id="password" placeholder="Пароль">
                 <button id="submit-login">Войти</button>
                 <button id="register-button">Зарегистрироваться</button>
+            </div>
+        </div>
+
+        <!-- Панель администратора -->
+        <div class="admin-panel" id="admin-panel" style="display: none;">
+            <h2>Панель администратора</h2>
+            <div class="add-movie-form">
+                <h3>Добавить фильм</h3>
+                <input type="text" id="add-title" placeholder="Название">
+                <input type="text" id="add-genre" placeholder="Жанр">
+                <input type="number" id="add-year" placeholder="Год">
+                <button id="add-movie-button">Добавить фильм</button>
             </div>
         </div>
     </div>
