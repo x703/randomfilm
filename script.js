@@ -21,49 +21,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const tvScreen = document.querySelector('.tv-screen'); // Получаем элемент экрана
     const clickSound = document.getElementById('click-sound');
     const staticSound = document.getElementById('static-sound');
+    const adminPanel = document.getElementById('admin-panel');
+    const addTitleInput = document.getElementById('add-title');
+    const addGenreInput = document.getElementById('add-genre');
+    const addYearInput = document.getElementById('add-year');
+    const addMovieButton = document.getElementById('add-movie-button');
 
     // Загружаем данные из localStorage
     let appData = JSON.parse(localStorage.getItem('appData')) || {
         sovietMovies: [
             { title: "Холоп 2", genre: "Комедия, Семейный", year: 2024, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
             { title: "Мастер и Маргарита", genre: "Фэнтези, Драма, Мелодрама", year: 2024, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Лед 3", genre: "Мелодрама, Спорт", year: 2024, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Бременские музыканты", genre: "Приключения, Семейный, Музыкальный", year: 2024, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Я делаю шаг", genre: "Драма", year: 2023, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Чебурашка", genre: "Комедия, Семейный", year: 2023, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Вызов", genre: "Драма", year: 2023, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Праведник", genre: "Военный, Драма, История", year: 2023, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Белый снег", genre: "Драма, Спорт", year: 2021, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Огонь", genre: "Драма, Катастрофа", year: 2020, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Серебряные коньки", genre: "Фэнтези, Приключения, Мелодрама", year: 2020, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Лёд 2", genre: "Мелодрама, Спорт", year: 2020, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Вторжение", genre: "Фантастика, Боевик", year: 2020, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Текст", genre: "Драма, Триллер, Криминал", year: 2019, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Холоп", genre: "Комедия", year: 2019, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Т-34", genre: "Военный, Боевик, Драма", year: 2018, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Движение вверх", genre: "Спорт, Драма", year: 2017, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Время первых", genre: "Драма, Приключения, Биография", year: 2017, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] },
-            { title: "Салют-7", genre: "Драма, Триллер", year: 2017, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] }
+            { title: "Лед 3", genre: "Мелодрама, Спорт", year: 2024, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] }
         ],
         users: [],
-        loggedInUser: null
+        loggedInUser: null,
+        isAdmin: false // Добавляем флаг для проверки администратора
     };
 
     let sovietMovies = appData.sovietMovies;
     let users = appData.users;
     let loggedInUser = appData.loggedInUser;
-
-     function playSound(sound) {
-        sound.currentTime = 0; // Сбрасываем время воспроизведения на начало
-        sound.play();
-    }
+    let isAdmin = appData.isAdmin;
 
     // Функция для сохранения данных в localStorage
     function updateLocalStorage() {
         appData.sovietMovies = sovietMovies;
         appData.users = users;
         appData.loggedInUser = loggedInUser;
+        appData.isAdmin = isAdmin; // Сохраняем статус администратора
         localStorage.setItem('appData', JSON.stringify(appData));
+    }
+
+    function playSound(sound) {
+        sound.currentTime = 0;
+        sound.play();
     }
 
     let currentMovieIndex = -1;
@@ -85,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
             movieYearP.textContent = "";
             movieGenreP.textContent = "";
             likeCountSpan.textContent = "0";
-            dislikeCountSpan.textContent = "0";
             commentsList.innerHTML = "";
             currentMovieIndex = -1;
         }
@@ -96,22 +87,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (movieIndex >= 0 && movieIndex < sovietMovies.length) {
             const movie = sovietMovies[movieIndex];
-            movie.comments.forEach(comment => {
+            movie.comments.forEach((comment, index) => { // Передаем index
                 const li = document.createElement("li");
                 li.textContent = comment.text + " (" + comment.author + ")";
+                if (isAdmin) {
+                    const deleteButton = document.createElement("button");
+                    deleteButton.classList.add("delete-comment");
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Иконка Font Awesome
+                    deleteButton.addEventListener("click", function() {
+                        // Удаляем комментарий
+                        sovietMovies[movieIndex].comments.splice(index, 1);
+                        updateLocalStorage();
+                        displayComments(movieIndex);
+                    });
+                    li.appendChild(deleteButton);
+                }
                 commentsList.appendChild(li);
             });
         }
     }
 
     function updateLikeDislikeButtons(movieIndex) {
-        if (movieIndex >= 0 && loggedInUser) {
+        if (loggedInUser && movieIndex >= 0) {
             const movie = sovietMovies[movieIndex];
             likeButton.disabled = movie.likedBy.includes(loggedInUser.username);
             dislikeButton.disabled = movie.dislikedBy.includes(loggedInUser.username);
         } else {
-            likeButton.disabled = false;
-            dislikeButton.disabled = false;
+            likeButton.disabled = true;
+            dislikeButton.disabled = true;
         }
     }
 
@@ -135,16 +138,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     generateButton.addEventListener('click', function() {
         playSound(staticSound);
-        tvScreen.classList.add('generating'); // Добавляем класс generating
+        tvScreen.classList.add('generating');
 
         // Анимация случайного выбора
-        animateRandomMovie(1500); // Уменьшаем время анимации для большей динамики
+        animateRandomMovie(1500);
 
-        // Запускаем функцию displayMovie через некоторое время
         setTimeout(() => {
             const randomIndex = getRandomMovieIndex();
             displayMovie(randomIndex);
-            tvScreen.classList.remove('generating'); // Убираем класс generating
+            tvScreen.classList.remove('generating');
         }, 2000);
     });
 
@@ -244,7 +246,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const username = usernameInput.value;
         const password = passwordInput.value;
 
-        const user = users.find(user => user.username === username && user.password === password);
+        if (username === "admin" && password === "admin123") {
+            isAdmin = true;
+            loggedInUser = { username: "admin" };
+            adminPanel.style.display = "block";
+            updateLocalStorage();
+            loginForm.style.display = "none";
+            loginButton.textContent = `Выйти (${loggedInUser.username})`;
+            alert("Вы вошли как администратор!");
+        }
+        else {
+            const user = users.find(user => user.username === username && user.password === password);
 
         if (user) {
             loggedInUser = user;
@@ -253,10 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`Добро пожаловать, ${loggedInUser.username}!`);
             updateLocalStorage();
             updateLikeDislikeButtons(currentMovieIndex);
-            displayComments(currentMovieIndex);
         } else {
             alert("Неверный логин или пароль.");
         }
+        }
+
+        displayComments(currentMovieIndex);
     });
 
     // Обработчик для выхода
@@ -265,10 +279,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (loggedInUser) {
             loggedInUser = null;
+            isAdmin = false; // Выходим из режима администратора
+            adminPanel.style.display = "none"; // Скрываем панель администратора
             updateLocalStorage();
             loginButton.textContent = "Логин";
             alert("Вы вышли из системы.");
             updateLikeDislikeButtons(currentMovieIndex);
+        } else {
+            loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+        }
+         displayComments(currentMovieIndex);
+    });
+
+     // Добавление фильма (только для администратора)
+    addMovieButton.addEventListener('click', function() {
+        if (isAdmin) {
+            const title = addTitleInput.value.trim();
+            const genre = addGenreInput.value.trim();
+            const year = parseInt(addYearInput.value);
+
+            if (title && genre && year) {
+                const newMovie = { title: title, genre: genre, year: year, likes: 0, dislikes: 0, comments: [], likedBy: [], dislikedBy: [] };
+                sovietMovies.push(newMovie);
+                updateLocalStorage();
+                addTitleInput.value = "";
+                addGenreInput.value = "";
+                addYearInput.value = "";
+                alert("Фильм добавлен!");
+            } else {
+                alert("Пожалуйста, заполните все поля.");
+            }
+        } else {
+            alert("У вас нет прав на добавление фильмов.");
         }
     });
 
@@ -277,4 +319,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const randomIndex = getRandomMovieIndex();
         displayMovie(randomIndex);
     }
+
+    //Проверка админа
+     if (isAdmin) {
+            adminPanel.style.display = "block";
+            loginButton.textContent = `Выйти (${loggedInUser.username})`;
+        }
 });
